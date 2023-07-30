@@ -9,22 +9,58 @@ if(isset($_POST['register'])) {
     $number = $_POST['number'];
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-    $sql = "INSERT INTO users (username, email, number, password) VALUES (?, ?, ?, ?)";
-    $stmt = $connect->prepare($sql);
-    $stmt->execute([$username, $email, $number, $password]);
-
-    if( $_SESSION['message'] = "You have successfully registered!"){
-        header('Location: login.php');
-        exit();
-    }else{
+    if(!is_valid_username($username)) {
+        $_SESSION['error'] = "Invalid username.";
         header('Location: register.php');
-exit();
+        exit();
     }
 
+    if(!is_valid_email($email)) {
+        $_SESSION['error'] = "Invalid email.";
+        header('Location: register.php');
+        exit();
+    }
+
+    if(!is_valid_password($password)) {
+        $_SESSION['error'] = "Invalid password.";
+        header('Location: register.php');
+        exit();
+    }
+
+    if(!is_valid_number($number)) {
+        $_SESSION['error'] = "Invalid number.";
+        header('Location: register.php');
+        exit();
+    }
+
+    if(isset($_SESSION['error'])) {
+        echo $_SESSION['error'];
+    } else {
+        header('Location: login.php');
+        exit();
+    }
 
 }
 
+function is_valid_username($username) {
+    return preg_match('/^[a-zA-Z0-9_]{5,20}$/', $username);
+}
+
+function is_valid_email($email) {
+    return preg_match('/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]+$/', $email);
+}
+
+function is_valid_password($password) {
+    return preg_match('/^^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^*]).*$/', $password);
+}
+
+function is_valid_number($number) {
+    return preg_match('/^[0-9]{10}$/', $number);
+}
+
 ?>
+
+
 
 
 <!DOCTYPE html>
